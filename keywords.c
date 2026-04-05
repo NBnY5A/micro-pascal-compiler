@@ -1,7 +1,6 @@
 #include <strings.h>
-#include <stdio.h>
 
-char *keywords [] = {
+static char *keywords [] = {
     "program",
     "var",
     "integer",
@@ -15,7 +14,7 @@ char *keywords [] = {
     "do"
 };
 
-const int KEYWORDS_LENGTH = 11;
+static const int KEYWORDS_LENGTH = 11;
 
 int verifyIfIsKeyword(char *word) {
     for (size_t i = 0; i < KEYWORDS_LENGTH; i++) {
