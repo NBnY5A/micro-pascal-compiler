@@ -36,6 +36,10 @@ typedef struct HashTable
     Entry *buckets[HASHTABLE_SIZE];
 } HashTable;
 
+HashTable *initTable();
+
+static int generateHashKey(char *key);
+
 static Token *createNewToken(char *name, char *lexeme, TokenType type, int row, int column);
 
 static Token *searchKeyInTable(HashTable *table, char *key);
@@ -44,4 +48,4 @@ static void *insertTokenInTable(HashTable *table, Token *token, char *key);
 
 static int isReservedWord(const char *lexeme);
 
-static int isReservedOperator(const char *lexeme);
+static int isReserverdOperator(const char *lexeme);
