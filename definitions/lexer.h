@@ -1,6 +1,8 @@
+#pragma once
+
 #define HASHTABLE_SIZE 500
 
-typedef enum TokenType 
+typedef enum TokenType
 {
     RESERVED_WORD,
     RESERVED_TYPE,
@@ -36,16 +38,27 @@ typedef struct HashTable
     Entry *buckets[HASHTABLE_SIZE];
 } HashTable;
 
-HashTable *initTable();
 
-static int generateHashKey(char *key);
+HashTable *initTable(void);
+void freeTable(HashTable *table);
+Token *lexerAnalysis(HashTable *table);
 
-static Token *createNewToken(char *name, char *lexeme, TokenType type, int row, int column);
+int generateHashKey(char *key);
 
-static Token *searchKeyInTable(HashTable *table, char *key);
+Token *createNewToken(const char *name, const char *lexeme, TokenType type, int row, int column);
 
-static void *insertTokenInTable(HashTable *table, Token *token, char *key);
+Token *searchKeyInTable(HashTable *table, char *key);
 
-static int isReservedWord(const char *lexeme);
+void insertTokenInTable(HashTable *table, Token *token);
 
-static int isReserverdOperator(const char *lexeme);
+int isReservedWord(const char *lexeme);
+
+int isReserverdOperator(const char *lexeme);
+
+void addWord(char **word, int *size, const char ch);
+
+void removeWord(char **word, int *size);
+
+int isValidIdentifier(const char *word);
+
+int isReservedType(const char *word);

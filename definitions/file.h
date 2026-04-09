@@ -1,5 +1,10 @@
+#pragma once
+
+#include <stdio.h>
 #include "lexer.h"
 
-static void saveFile(Token *token);
+extern FILE *input;
+extern FILE *output;
 
-static char *createPath(const char *filename);
+void saveFile(Token *token);
+char *createPath(const char *filename);

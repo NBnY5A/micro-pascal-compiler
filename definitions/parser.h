@@ -1,3 +1,5 @@
+#pragma once
+
 #include "./lexer.h"
 
 typedef struct ASTNode
@@ -8,7 +10,7 @@ typedef struct ASTNode
     struct ASTNode *right;
 } ASTNode;
 
-ASTNode *createNode(int type, char *value);
+ASTNode *createNode(int type, const char *value);
 
 void freeNode(ASTNode *node);
 
