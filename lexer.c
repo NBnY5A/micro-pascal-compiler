@@ -65,9 +65,75 @@ char *duplicateString(const char *value)
     return copy;
 }
 
-HashTable *initTable(void)
+HashTable *initTable(HashTableMode mode)
 {
-    return (HashTable *)calloc(1, sizeof(HashTable));
+    HashTable *table = (HashTable *) calloc(1, sizeof(HashTable));
+    if (table == NULL)
+    {
+        return NULL;
+    }
+    
+    table->mode = mode;
+
+    if (mode == SYMBOL_TABLE)
+    {
+        for (size_t i = 0; i < sizeof(reservedWords) / sizeof(reservedWords[0]); i++)
+        {
+            Token *token = createNewToken("Reserved-word", reservedWords[i], RESERVED_WORD, 0, 0);
+            if (token != NULL)
+            {
+                insertTokenInTable(table, token);
+            }
+        }
+
+        for (size_t i = 0; i < sizeof(reservedTypes) / sizeof(reservedTypes[0]); i++)
+        {
+            Token *token = createNewToken("Reserved-type", reservedTypes[i], RESERVED_TYPE, 0, 0);
+            if (token != NULL)
+            {
+                insertTokenInTable(table, token);
+            }
+        }
+    }
+
+    return table;
+}
+
+int generateHashKey(const char *key)
+{
+    if (key == NULL)
+    {
+        return 0;
+    }
+
+    unsigned long hash = 5381;
+    for (int i = 0; key[i] != '\0'; i++)
+    {
+        hash = ((hash << 5) + hash) + (unsigned long)tolower((unsigned char)key[i]);
+    }
+
+    return (int)(hash % HASHTABLE_SIZE);
+}
+
+Token *searchKeyInTable(HashTable *table, const char *key)
+{
+    if (table == NULL || key == NULL)
+    {
+        return NULL;
+    }
+
+    Entry *entry = table->buckets[0];
+    while (entry != NULL)
+    {
+        if (entry->key != NULL && strcasecmp(entry->key, key) == 0)
+        {
+            return entry->token;
+        }
+
+        entry = entry->next;
+    }
+
+    return NULL;
 }
 
 void freeTable(HashTable *table)
@@ -134,10 +200,37 @@ void insertTokenInTable(HashTable *table, Token *token)
         return;
     }
 
+    if (table->mode == SYMBOL_TABLE)
+    {
+        if (token->type != IDENTIFIER && token->type != RESERVED_WORD && token->type != RESERVED_TYPE)
+        {
+            free(token->name);
+            free(token->lexeme);
+            free(token);
+            return;
+        }
+
+        for (int i = 0; token->lexeme[i] != '\0'; i++)
+        {
+            token->lexeme[i] = (char)tolower((unsigned char)token->lexeme[i]);
+        }
+
+        if (searchKeyInTable(table, token->lexeme) != NULL)
+        {
+            free(token->name);
+            free(token->lexeme);
+            free(token);
+            return;
+        }
+    }
+
     Entry *entry = (Entry *)malloc(sizeof(Entry));
 
     if (entry == NULL)
     {
+        free(token->name);
+        free(token->lexeme);
+        free(token);
         return;
     }
 
@@ -146,7 +239,6 @@ void insertTokenInTable(HashTable *table, Token *token)
     entry->next = NULL;
     entry->previous = NULL;
 
-    // Mantém ordem de leitura para parser/main (lista linear em buckets[0]).
     int index = 0;
 
     if (table->buckets[index] == NULL)
@@ -192,7 +284,7 @@ int isReservedWord(const char *lexeme)
 
 int isReservedOperator(const char *lexeme)
 {
-    return isInList(lexeme, reservedOperators, sizeof(reservedOperators) / sizeof(reservedOperators[0]), 0);
+    return isInList(lexeme, reservedOperators, sizeof(reservedOperators) / sizeof(reservedOperators[0]), 1);
 }
 
 int isReservedType(const char *word)
@@ -238,20 +330,20 @@ void addWord(char **word, int *size, char current)
 
 int isSymbolChar(int c)
 {
-    return c == RESERVERD_SMB_OBC[0] || c == RESERVERD_SMB_CBC[0] || c == RESERVERD_SMB_SEM[0] ||
-           c == RESERVERD_SMB_OPA[0] || c == RESERVERD_SMB_CPA[0] || c == RESERVERD_SMB_DOT[0] ||
-           c == RESERVERD_SMB_COM[0] || c == RESERVERD_SMB_COL[0];
+    return c == RESERVERD_SMB_SEM[0] || c == RESERVERD_SMB_OPA[0] || c == RESERVERD_SMB_CPA[0] ||
+           c == RESERVERD_SMB_DOT[0] || c == RESERVERD_SMB_COM[0] || c == RESERVERD_SMB_COL[0];
 }
 
 int isOperatorStartChar(int c)
 {
     return c == RESERVERD_OP_AD[0] || c == RESERVERD_OP_MIN[0] || c == RESERVERD_OP_DIV[0] ||
-           c == RESERVERD_OP_MUL[0] || c == RESERVERD_OP_LT[0] || c == RESERVERD_OP_GT[0];
+           c == RESERVERD_OP_MUL[0] || c == RESERVERD_OP_LT[0] || c == RESERVERD_OP_GT[0] ||
+           c == RESERVERD_OP_EQ[0];
 }
 
-Token *emitToken(HashTable *table, char **word, const char *name, TokenType type, int tokenRow, int tokenColumn)
+Token *emitToken(HashTable *tokenTable, HashTable *symbolTable, char **word, const char *name, TokenType type, int tokenRow, int tokenColumn)
 {
-    Token *token = createNewToken(*word, name, type, tokenRow, tokenColumn);
+    Token *token = createNewToken(name, *word, type, tokenRow, tokenColumn);
 
     if (token == NULL)
     {
@@ -260,14 +352,23 @@ Token *emitToken(HashTable *table, char **word, const char *name, TokenType type
         return NULL;
     }
 
-    insertTokenInTable(table, token);
+    insertTokenInTable(tokenTable, token);
+
+    if (symbolTable != NULL && (type == IDENTIFIER || type == RESERVED_WORD || type == RESERVED_TYPE))
+    {
+        Token *symbolToken = createNewToken(name, *word, type, tokenRow, tokenColumn);
+        if (symbolToken != NULL)
+        {
+            insertTokenInTable(symbolTable, symbolToken);
+        }
+    }
 
     free(*word);
     *word = NULL;
     return token;
 }
 
-Token *lexerAnalysis(HashTable *table)
+Token *lexerAnalysis(HashTable *tokenTable, HashTable *symbolTable)
 {
     char *word = (char *)malloc(1);
 
@@ -280,6 +381,8 @@ Token *lexerAnalysis(HashTable *table)
 
     int state = 0;
     int size = 0;
+    int tokenRow = row;
+    int tokenColumn = column;
 
     while ((ch = fgetc(input)) != EOF)
     {
@@ -288,7 +391,7 @@ Token *lexerAnalysis(HashTable *table)
         switch (state)
         {
         case 0:
-            if (ch == SPC_BLANK_SPACE || ch == SPC_TAB || ch == SPC_NEW_LINE)
+            if (ch == SPC_BLANK_SPACE || ch == SPC_TAB || ch == SPC_NEW_LINE || ch == '\r')
             {
                 if (ch == SPC_NEW_LINE)
                 {
@@ -298,8 +401,29 @@ Token *lexerAnalysis(HashTable *table)
                 break;
             }
 
+            if (ch == RESERVERD_SMB_OBC[0])
+            {
+                tokenRow = row;
+                tokenColumn = column;
+                state = 7;
+                size = 0;
+                word[0] = '\0';
+                break;
+            }
+
+            if (ch == '\'')
+            {
+                tokenRow = row;
+                tokenColumn = column;
+                addWord(&word, &size, (char)ch);
+                state = 6;
+                break;
+            }
+
             if (isdigit((unsigned char)ch))
             {
+                tokenRow = row;
+                tokenColumn = column;
                 addWord(&word, &size, (char)ch);
                 state = 2;
                 break;
@@ -307,6 +431,8 @@ Token *lexerAnalysis(HashTable *table)
 
             if (isalpha((unsigned char)ch) || ch == '_')
             {
+                tokenRow = row;
+                tokenColumn = column;
                 addWord(&word, &size, (char)ch);
                 state = 1;
                 break;
@@ -314,6 +440,8 @@ Token *lexerAnalysis(HashTable *table)
 
             if (isSymbolChar(ch))
             {
+                tokenRow = row;
+                tokenColumn = column;
                 addWord(&word, &size, (char)ch);
 
                 if (ch == RESERVERD_SMB_COL[0])
@@ -322,11 +450,13 @@ Token *lexerAnalysis(HashTable *table)
                     break;
                 }
 
-                return emitToken(table, &word, "Symbol", SYMBOL, row, column);
+                return emitToken(tokenTable, symbolTable, &word, "Symbol", SYMBOL, tokenRow, tokenColumn);
             }
 
             if (isOperatorStartChar(ch))
             {
+                tokenRow = row;
+                tokenColumn = column;
                 addWord(&word, &size, (char)ch);
 
                 if (ch == RESERVERD_OP_AD[0] || ch == RESERVERD_OP_MIN[0] ||
@@ -363,16 +493,20 @@ Token *lexerAnalysis(HashTable *table)
                         }
                     }
 
-                    return emitToken(table, &word, "Binary Arithmetic Operator", RESERVED_OPERATOR, row, column);
+                    return emitToken(tokenTable, symbolTable, &word, "Binary Arithmetic Operator", RESERVED_OPERATOR, row, column);
                 }
 
                 state = 4;
                 break;
             }
 
-            fprintf(stderr, "Unknown character '%c' at <%d, %d>\n", (char)ch, row, column);
+             if (errorOutput != NULL)
+            {
+                fprintf(errorOutput, "INVALID_CHARACTER %d %d\n", row, column);
+            }
+
             free(word);
-            return NULL;
+            return createNewToken("ERROR", "INVALID_CHARACTER", ERROR, row, column);
 
         case 1:
             if (isalnum((unsigned char)ch) || ch == '_')
@@ -386,27 +520,34 @@ Token *lexerAnalysis(HashTable *table)
 
             if (!isValidIdentifier(word))
             {
-                fprintf(stderr, "Invalid identifier \"%s\" at <%d, %d>\n", word, row, column);
+                if (errorOutput != NULL)
+                {
+                    fprintf(errorOutput, "INVALID_IDENTIFIER %d %d\n", tokenRow, tokenColumn);
+                }
+
                 free(word);
-                return NULL;
+                return createNewToken("ERROR", "INVALID_IDENTIFIER", ERROR, tokenRow, tokenColumn);
             }
 
             if (isReservedWord(word))
             {
-                return emitToken(table, &word, "Reserved-word", RESERVED_WORD, row, column);
+                for (int i = 0; word[i] != '\0'; i++) word[i] = (char)tolower((unsigned char)word[i]);
+                return emitToken(tokenTable, symbolTable, &word, "Reserved-word", RESERVED_WORD, tokenRow, tokenColumn);
             }
 
             if (isReservedType(word))
             {
-                return emitToken(table, &word, "Reserved-type", RESERVED_TYPE, row, column);
+                for (int i = 0; word[i] != '\0'; i++) word[i] = (char)tolower((unsigned char)word[i]);
+                return emitToken(tokenTable, symbolTable, &word, "Reserved-type", RESERVED_TYPE, tokenRow, tokenColumn);
             }
 
             if (isReservedOperator(word))
             {
-                return emitToken(table, &word, "Reserved-operator", RESERVED_OPERATOR, row, column);
+                for (int i = 0; word[i] != '\0'; i++) word[i] = (char)tolower((unsigned char)word[i]);
+                return emitToken(tokenTable, symbolTable, &word, "Reserved-operator", RESERVED_OPERATOR, tokenRow, tokenColumn);
             }
 
-            return emitToken(table, &word, "Identifier", IDENTIFIER, row, column);
+            return emitToken(tokenTable, symbolTable, &word, "Identifier", IDENTIFIER, tokenRow, tokenColumn);
 
         case 2:
             if (isdigit((unsigned char)ch))
@@ -425,14 +566,19 @@ Token *lexerAnalysis(HashTable *table)
             if (isalpha((unsigned char)ch) || ch == '_')
             {
                 addWord(&word, &size, (char)ch);
-                fprintf(stderr, "Invalid identifier \"%s\" at <%d, %d>\n", word, row, column);
+
+                if (errorOutput != NULL)
+                {
+                    fprintf(errorOutput, "INVALID_IDENTIFIER %d %d\n", tokenRow, tokenColumn);
+                }
+
                 free(word);
-                return NULL;
+                return createNewToken("ERROR", "INVALID_IDENTIFIER", ERROR, tokenRow, tokenColumn);
             }
 
             ungetc(ch, input);
             column--;
-            return emitToken(table, &word, "Integer number", NUMBER, row, column);
+            return emitToken(tokenTable, symbolTable, &word, "Integer number", NUMBER, tokenRow, tokenColumn);
 
         case 3:
             if (isdigit((unsigned char)ch))
@@ -441,9 +587,22 @@ Token *lexerAnalysis(HashTable *table)
                 break;
             }
 
+            if (isalpha((unsigned char)ch) || ch == '_')
+            {
+                addWord(&word, &size, (char)ch);
+
+                if (errorOutput != NULL)
+                {
+                    fprintf(errorOutput, "INVALID_NUMBER %d %d\n", tokenRow, tokenColumn);
+                }
+
+                free(word);
+                return createNewToken("ERROR", "INVALID_NUMBER", ERROR, tokenRow, tokenColumn);
+            }
+
             ungetc(ch, input);
             column--;
-            return emitToken(table, &word, "Real number", NUMBER, row, column);
+            return emitToken(tokenTable, symbolTable, &word, "Real number", NUMBER, tokenRow, tokenColumn);
 
         case 4:
             if ((ch == RESERVERD_OP_EQ[0] &&
@@ -456,24 +615,90 @@ Token *lexerAnalysis(HashTable *table)
 
             ungetc(ch, input);
             column--;
-            return emitToken(table, &word, "Relational Operator", RESERVED_OPERATOR, row, column);
+            return emitToken(tokenTable, symbolTable, &word, "Relational Operator", RESERVED_OPERATOR, tokenRow, tokenColumn);
 
         case 5:
             if (ch == RESERVERD_OP_EQ[0] && word[size - 1] == RESERVERD_SMB_COL[0])
             {
                 addWord(&word, &size, (char)ch);
-                return emitToken(table, &word, "Assignment Operator", RESERVED_OPERATOR, row, column);
+                return emitToken(tokenTable, symbolTable, &word, "Assignment Operator", RESERVED_OPERATOR, tokenRow, tokenColumn);
             }
 
             ungetc(ch, input);
             column--;
-            return emitToken(table, &word, "Symbol", SYMBOL, row, column);
+            return emitToken(tokenTable, symbolTable, &word, "Symbol", SYMBOL, tokenRow, tokenColumn);
+
+        case 6:
+            if (ch == SPC_NEW_LINE)
+            {
+                if (errorOutput != NULL)
+                {
+                    fprintf(errorOutput, "UNCLOSED_STRING %d %d\n", tokenRow, tokenColumn);
+                }
+
+                row++;
+                column = 0;
+                free(word);
+                return createNewToken("ERROR", "UNCLOSED_STRING", ERROR, tokenRow, tokenColumn);
+            }
+
+            addWord(&word, &size, (char)ch);
+
+            if (ch == '\'')
+            {
+                return emitToken(tokenTable, symbolTable, &word, "String", STRING, tokenRow, tokenColumn);
+            }
+
+            break;
+
+        case 7:
+            if (ch == RESERVERD_SMB_CBC[0])
+            {
+                state = 0;
+                size = 0;
+                word[0] = '\0';
+                break;
+            }
+
+            if (ch == SPC_NEW_LINE)
+            {
+                row++;
+                column = 0;
+            }
+
+            break;
 
         default:
-            fprintf(stderr, "Unknown state %d at <%d, %d>\n", state, row, column);
+            if (errorOutput != NULL)
+            {
+                fprintf(errorOutput, "UNKNOWN_STATE %d %d\n", row, column);
+            }
+
             free(word);
-            return NULL;
+            return createNewToken("ERROR", "UNKNOWN_STATE", ERROR, row, column);
         }
+    }
+
+    if (state == 7)
+    {
+        if (errorOutput != NULL)
+        {
+            fprintf(errorOutput, "UNCLOSED_COMMENT %d %d\n", tokenRow, tokenColumn);
+        }
+
+        free(word);
+        return createNewToken("ERROR", "UNCLOSED_COMMENT", ERROR, tokenRow, tokenColumn);
+    }
+
+    if (state == 6)
+    {
+        if (errorOutput != NULL)
+        {
+            fprintf(errorOutput, "UNCLOSED_STRING %d %d\n", tokenRow, tokenColumn);
+        }
+
+        free(word);
+        return createNewToken("ERROR", "UNCLOSED_STRING", ERROR, tokenRow, tokenColumn);
     }
 
     if (size > 0)
@@ -482,40 +707,43 @@ Token *lexerAnalysis(HashTable *table)
         {
             if (isReservedWord(word))
             {
-                return emitToken(table, &word, "Reserved-word", RESERVED_WORD, row, column);
+                for (int i = 0; word[i] != '\0'; i++) word[i] = (char)tolower((unsigned char)word[i]);
+                return emitToken(tokenTable, symbolTable, &word, "Reserved-word", RESERVED_WORD, tokenRow, tokenColumn);
             }
 
             if (isReservedType(word))
             {
-                return emitToken(table, &word, "Reserved-type", RESERVED_TYPE, row, column);
+                for (int i = 0; word[i] != '\0'; i++) word[i] = (char)tolower((unsigned char)word[i]);
+                return emitToken(tokenTable, symbolTable, &word, "Reserved-type", RESERVED_TYPE, tokenRow, tokenColumn);
             }
 
             if (isReservedOperator(word))
             {
-                return emitToken(table, &word, "Reserved-operator", RESERVED_OPERATOR, row, column);
+                for (int i = 0; word[i] != '\0'; i++) word[i] = (char)tolower((unsigned char)word[i]);
+                return emitToken(tokenTable, symbolTable, &word, "Reserved-operator", RESERVED_OPERATOR, tokenRow, tokenColumn);
             }
 
-            return emitToken(table, &word, "Identifier", IDENTIFIER, row, column);
+            return emitToken(tokenTable, symbolTable, &word, "Identifier", IDENTIFIER, tokenRow, tokenColumn);
         }
 
         if (state == 2)
         {
-            return emitToken(table, &word, "Integer number", NUMBER, row, column);
+            return emitToken(tokenTable, symbolTable, &word, "Integer number", NUMBER, tokenRow, tokenColumn);
         }
 
         if (state == 3)
         {
-            return emitToken(table, &word, "Real number", NUMBER, row, column);
+            return emitToken(tokenTable, symbolTable, &word, "Real number", NUMBER, tokenRow, tokenColumn);
         }
 
         if (state == 4)
         {
-            return emitToken(table, &word, "Relational Operator", RESERVED_OPERATOR, row, column);
+            return emitToken(tokenTable, symbolTable, &word, "Relational Operator", RESERVED_OPERATOR, tokenRow, tokenColumn);
         }
 
         if (state == 5)
         {
-            return emitToken(table, &word, "Symbol", SYMBOL, row, column);
+            return emitToken(tokenTable, symbolTable, &word, "Symbol", SYMBOL, tokenRow, tokenColumn);
         }
     }
 
