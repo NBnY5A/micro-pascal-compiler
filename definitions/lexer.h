@@ -15,6 +15,12 @@ typedef enum TokenType
     END_OF_FILE
 } TokenType;
 
+typedef enum HashTableMode
+{
+    TOKEN_STREAM_TABLE = 0,
+    SYMBOL_TABLE = 1
+} HashTableMode;
+
 typedef struct Token
 {
     char *name;
@@ -36,24 +42,26 @@ typedef struct Entry
 typedef struct HashTable
 {
     Entry *buckets[HASHTABLE_SIZE];
+    HashTableMode mode;
 } HashTable;
 
+HashTable *initTable(HashTableMode mode);
 
-HashTable *initTable(void);
 void freeTable(HashTable *table);
-Token *lexerAnalysis(HashTable *table);
 
-int generateHashKey(char *key);
+Token *lexerAnalysis(HashTable *tokenTable, HashTable *symbolTable);
+
+int generateHashKey(const char *key);
 
 Token *createNewToken(const char *name, const char *lexeme, TokenType type, int row, int column);
 
-Token *searchKeyInTable(HashTable *table, char *key);
+Token *searchKeyInTable(HashTable *table, const char *key);
 
 void insertTokenInTable(HashTable *table, Token *token);
 
 int isReservedWord(const char *lexeme);
 
-int isReserverdOperator(const char *lexeme);
+int isReservedOperator(const char *lexeme);
 
 void addWord(char **word, int *size, const char ch);
 

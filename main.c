@@ -34,10 +34,16 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    char *outputPath = createPath(inputName);
-    if (outputPath == NULL)
+    char *lexPath = createPath(inputName, ".lex");
+    char *tsPath = createPath(inputName, ".ts");
+    char *errPath = createPath(inputName, ".err");
+
+    if (lexPath == NULL || tsPath == NULL || errPath == NULL)
     {
-        fprintf(stderr, "Failed to create output path.\n");
+        fprintf(stderr, "Failed to create output paths.\n");
+        free(lexPath);
+        free(tsPath);
+        free(errPath);
         return 1;
     }
 
@@ -45,57 +51,111 @@ int main(int argc, char **argv)
     if (input == NULL)
     {
         printf("File not found:\n\t--file <file>\n");
-        free(outputPath);
+        free(lexPath);
+        free(tsPath);
+        free(errPath);
         return 1;
     }
 
-    output = fopen(outputPath, "w");
-    if (output == NULL)
+    output = fopen(lexPath, "w");
+    tsOutput = fopen(tsPath, "w");
+    errorOutput = fopen(errPath, "w");
+
+    if (output == NULL || tsOutput == NULL || errorOutput == NULL)
     {
-        fprintf(stderr, "Unable to create output file: %s\n", outputPath);
+        fprintf(stderr, "Unable to create output files.\n");
+
+        if (output != NULL) fclose(output);
+        if (tsOutput != NULL) fclose(tsOutput);
+        if (errorOutput != NULL) fclose(errorOutput);
+
         fclose(input);
-        free(outputPath);
+        free(lexPath);
+        free(tsPath);
+        free(errPath);
         return 1;
     }
 
-    HashTable *table = initTable();
-    if (table == NULL)
+    HashTable *tokenTable = initTable(TOKEN_STREAM_TABLE);
+    HashTable *symbolTable = initTable(SYMBOL_TABLE);
+
+    if (tokenTable == NULL || symbolTable == NULL)
     {
-        fprintf(stderr, "Unable to allocate token table.\n");
+        fprintf(stderr, "Unable to allocate token tables.\n");
+        freeTable(tokenTable);
+        freeTable(symbolTable);
         fclose(input);
         fclose(output);
-        free(outputPath);
+        fclose(tsOutput);
+        fclose(errorOutput);
+        free(lexPath);
+        free(tsPath);
+        free(errPath);
         return 1;
     }
 
+    int lexicalError = 0;
     Token *token = NULL;
+
     do
     {
-        token = lexerAnalysis(table);
-    } while (token != NULL && token->type != ERROR && token->type != END_OF_FILE);
+        token = lexerAnalysis(tokenTable, symbolTable);
 
-    free(token);
+        if (token == NULL)
+        {
+            lexicalError = 1;
+            break;
+        }
 
-    Entry *entry = table->buckets[0];
+        if (token->type == ERROR)
+        {
+            lexicalError = 1;
+            free(token);
+            token = NULL;
+            break;
+        }
+    } while (token->type != END_OF_FILE);
+
+    if (token != NULL)
+    {
+        free(token);
+    }
+
+    Entry *entry = tokenTable->buckets[0];
     while (entry != NULL)
     {
-        printf("<%d, %s, '%s'> : <%d, %d>\n",
-               entry->token->type,
-               entry->token->name,
-               entry->token->lexeme,
-               entry->token->row,
-               entry->token->column);
         saveFile(entry->token);
         entry = entry->next;
     }
 
-    ASTNode *ast = parseTokens(table);
-    freeNode(ast);
+    entry = symbolTable->buckets[0];
+    while (entry != NULL)
+    {
+        fprintf(tsOutput, "<%s, %s>\n", entry->token->name, entry->token->lexeme);
+        entry = entry->next;
+    }
 
-    freeTable(table);
+    if (!lexicalError)
+    {
+        ASTNode *ast = parseTokens(tokenTable);
+        freeNode(ast);
+    }
+    else
+    {
+        fprintf(stderr, "Lexical analysis failed. Parsing aborted.\n");
+    }
+
+    freeTable(tokenTable);
+    freeTable(symbolTable);
+
     fclose(input);
     fclose(output);
-    free(outputPath);
+    fclose(tsOutput);
+    fclose(errorOutput);
 
-    return 0;
+    free(lexPath);
+    free(tsPath);
+    free(errPath);
+
+    return lexicalError ? 1 : 0;
 }

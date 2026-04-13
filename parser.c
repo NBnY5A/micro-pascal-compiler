@@ -635,31 +635,49 @@ ASTNode *parseVarDeclaration(HashTable *table, Entry **currentEntry)
 
     ASTNode *varDeclNode = createNode(entry->token->type, entry->token->lexeme);
 
-    while (entry && lexemeEquals(entry, RESERVERD_WORD_VAR))
+    if (entry->next == NULL)
     {
-        if (entry->next == NULL)
-        {
-            parserAbortFree(entry, "Expected identifier after \"var\"", varDeclNode);
-        }
+        parserAbortFree(entry, "Expected identifier after \"var\"", varDeclNode);
+    }
 
-        *currentEntry = entry->next;
-        entry = *currentEntry;
+    *currentEntry = entry->next;
+    entry = *currentEntry;
 
+    ASTNode *declList = NULL;
+
+    while (entry && entry->token->type == IDENTIFIER)
+    {
         ASTNode *declNode = parseDeclaration(table, currentEntry);
-        varDeclNode->right = declNode;
-        entry = *currentEntry;
 
-        if (entry && lexemeEquals(entry, RESERVERD_SMB_SEM))
+        if (declList == NULL)
         {
-            *currentEntry = entry->next;
-            entry = *currentEntry;
+            declList = declNode;
         }
         else
         {
-            break;
+            ASTNode *seqNode = createNode(SYMBOL, RESERVERD_SMB_SEM);
+            seqNode->left = declList;
+            seqNode->right = declNode;
+            declList = seqNode;
         }
+
+        entry = *currentEntry;
+
+        if (!entry || !lexemeEquals(entry, RESERVERD_SMB_SEM))
+        {
+            parserAbortFree(entry, "Expected \";\" after declaration", varDeclNode);
+        }
+
+        *currentEntry = entry->next; // avança para próxima declaração ou begin
+        entry = *currentEntry;
     }
 
+    if (declList == NULL)
+    {
+        parserAbortFree(entry, "Expected identifier after \"var\"", varDeclNode);
+    }
+
+    varDeclNode->right = declList;
     return varDeclNode;
 }
 
