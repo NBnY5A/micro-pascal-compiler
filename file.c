@@ -5,41 +5,37 @@
 
 FILE *input = NULL;
 FILE *output = NULL;
+FILE *tsOutput = NULL;
+FILE *errorOutput = NULL;
 
 void saveFile(Token *token)
 {
-    fprintf(output, "<%d, %s, \"%s\"> : <%d, %d>\n",
-            token->type, token->name, token->lexeme, token->row, token->column);
+    fprintf(output, "<%s, %s>: <%d, %d>\n",
+            token->name, token->lexeme, token->row, token->column);
 }
 
-char *createPath(const char *filename)
+char *createPath(const char *filename, const char *extension)
 {
     const char *baseName = strrchr(filename, '/');
     baseName = baseName ? baseName + 1 : filename;
 
-    size_t outputNameLen = strlen(baseName) + 5;
-    char *outputName = (char *)malloc(outputNameLen);
+    size_t baseLen = strlen(baseName);
+    const char *dot = strrchr(baseName, '.');
+    size_t stemLen = (dot != NULL) ? (size_t)(dot - baseName) : baseLen;
 
+    size_t outputNameLen = stemLen + strlen(extension) + 1;
+    char *outputName = (char *)malloc(outputNameLen);
     if (outputName == NULL)
     {
         return NULL;
     }
 
-    strcpy(outputName, baseName);
-
-    char *dot = strrchr(outputName, '.');
-    if (dot != NULL)
-    {
-        strcpy(dot, ".lex");
-    }
-    else
-    {
-        strcat(outputName, ".lex");
-    }
+    memcpy(outputName, baseName, stemLen);
+    outputName[stemLen] = '\0';
+    strcat(outputName, extension);
 
     size_t outputPathLen = strlen("./lexical-tables/") + strlen(outputName) + 1;
     char *outputPath = (char *)malloc(outputPathLen);
-
     if (outputPath == NULL)
     {
         free(outputName);
