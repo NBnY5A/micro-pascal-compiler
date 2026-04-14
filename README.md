@@ -115,8 +115,10 @@ Executa o pipeline completo do compilador: valida CLI, cria caminhos de saída, 
 
 ## 3. Módulo: `file.c`
 
-**Funções**  
-```C void saveFile(Token *token)
+**Funções**
+
+```C 
+void saveFile(Token *token)
 ```
 Grava um token no arquivo `.lex` usando os campos `name`, `lexeme`, `row` e `column`.
 
@@ -129,7 +131,8 @@ Gera o caminho de saída em `./lexical-tables/`, preservando o nome base do arqu
 
 ## 3. Módulo: `lexer.c`
 
-**Funções**  
+**Funções**
+
 ```C
 char *duplicateString(const char *value)
 ```
@@ -219,7 +222,8 @@ Executa o AFD de análise léxica: reconhece identificadores, números, strings,
 
 ## 3. Módulo: `parser.c`
 
-**Funções**  
+**Funções**
+
 ```C
 ASTNode *createNode(int type, const char *value)
 ```
