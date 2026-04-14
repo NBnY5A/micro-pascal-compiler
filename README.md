@@ -71,7 +71,7 @@ typedef enum TokenType
 typedef enum HashTableMode
 {
     TOKEN_STREAM_TABLE = 0,
-    SYMBOL_TABLE = 1                // Serve como um interruptor para alternar o estado da HashTabe dependendo 
+    SYMBOL_TABLE = 1                // Serve como um interruptor para alternar o estado da HashTable dependendo 
 } HashTableMode;                    // de qual operação ela está sendo usada
 
 typedef struct Token {
