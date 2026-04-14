@@ -2,14 +2,15 @@ digraph AFD_Identificadores {
     rankdir=LR;
     node [shape=circle, fontname="Courier", fontsize=10];
     
+    label="\"AFD para Palavras Reservadas\"";
+    labelloc="t"
+
     qi [shape=point];
 
-    // Estados
     q0 [label="q0 (Inicial)", shape=circle];
     q1 [label="q1 (Id)", shape=circle];
     q_acc [label="q_acc\n(Emitir ID/Reservada)", shape=doublecircle];
     
-    // Transições
     qi -> q0;
     q0 -> q1 [label="[a-zA-Z_]"];
     q1 -> q1 [label="[a-zA-Z0-9_]"];
