@@ -1,7 +1,11 @@
-program T_001;
+program T_002;
 
 var
     a: integer;
+
 begin
-    a := 5;
-end.
+    while (a < 10) do
+        begin
+            a := a + 1;
+        end
+end.  
