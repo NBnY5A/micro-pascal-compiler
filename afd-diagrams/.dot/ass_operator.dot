@@ -1,0 +1,20 @@
+digraph AFD_Atribuicao {
+    rankdir=LR;
+    node [shape=circle, fontname="Courier", fontsize=10];
+
+    label="\"AFD para atribuição de Tipagem e Variáveis\"";
+    labelloc="t"
+    
+    qi [shape=point];
+    
+    q0 [label="q0 (Inicial)"];
+    q5 [label="q5 (Apos ':')"];
+    q_acc_assign [label="q_acc\n(Emitir ATRIBUICAO :=)", shape=doublecircle];
+    q_acc_colon [label="q_acc\n(Emitir SYMBOL ':')", shape=doublecircle];
+    
+    qi->q0
+    
+    q0 -> q5 [label="':'"];
+    q5 -> q_acc_assign [label="'='"];
+    q5 -> q_acc_colon [label="outro\n(Verifica próximo caractere)"];
+}

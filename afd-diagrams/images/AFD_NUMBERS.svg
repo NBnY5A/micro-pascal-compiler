@@ -1,0 +1,125 @@
+<?xml version="1.0" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="843pt" height="612pt" viewBox="0.00 0.00 842.59 611.97">
+<g id="graph0" class="graph" transform="translate(4,607.969970703125) scale(1)" data-name="AFD_Numeros">
+
+<polygon fill="white" stroke="none" points="-4,4 -4,-607.97 838.59,-607.97 838.59,4 -4,4" style=""/>
+<text text-anchor="middle" x="417.3" y="-587.37" font-family="Times,serif" font-size="14.00" style="">"AFD para identificação de Números Inteiros e Reais"</text>
+<!-- qi -->
+<g id="node1" class="node" pointer-events="visible" data-name="qi">
+
+<ellipse fill="black" stroke="black" cx="1.8" cy="-284.69" rx="1.8" ry="1.8" style=""/>
+</g>
+<!-- q0 -->
+<g id="node2" class="node" pointer-events="visible" data-name="q0">
+
+<ellipse fill="none" stroke="black" cx="93.52" cy="-284.69" rx="52.85" ry="52.85" style=""/>
+<text text-anchor="middle" x="93.52" y="-281.69" font-family="Courier,monospace" font-size="10.00" style="">q0 (Inicial)</text>
+</g>
+<!-- qi&#45;&gt;q0 -->
+<g id="edge1" class="edge" data-name="qi-&gt;q0">
+
+<path fill="none" stroke="black" d="M4.07,-284.69C7.43,-284.69 17.11,-284.69 28.9,-284.69" style=""/>
+<polygon fill="black" stroke="black" points="28.69,-288.19 38.69,-284.69 28.69,-281.19 28.69,-288.19" style=""/>
+</g>
+<!-- q2 -->
+<g id="node3" class="node" pointer-events="visible" data-name="q2">
+
+<ellipse fill="none" stroke="black" cx="263.36" cy="-284.69" rx="52.85" ry="52.85" style=""/>
+<text text-anchor="middle" x="263.36" y="-281.69" font-family="Courier,monospace" font-size="10.00" style="">q2 (Inteiro)</text>
+</g>
+<!-- q0&#45;&gt;q2 -->
+<g id="edge2" class="edge" data-name="q0-&gt;q2">
+
+<path fill="none" stroke="black" d="M146.71,-284.69C163.29,-284.69 181.8,-284.69 199.07,-284.69" style=""/>
+<polygon fill="black" stroke="black" points="198.7,-288.19 208.7,-284.69 198.7,-281.19 198.7,-288.19" style=""/>
+<text text-anchor="middle" x="178.44" y="-288.89" font-family="Times,serif" font-size="14.00" style="">[0-9]</text>
+</g>
+<!-- q2&#45;&gt;q2 -->
+<g id="edge3" class="edge" data-name="q2-&gt;q2">
+
+<path fill="none" stroke="black" d="M247.83,-335.7C249.23,-347.2 254.4,-355.62 263.36,-355.62 269.1,-355.62 273.29,-352.16 275.92,-346.66" style=""/>
+<polygon fill="black" stroke="black" points="279.26,-347.73 278.5,-337.16 272.5,-345.89 279.26,-347.73" style=""/>
+<text text-anchor="middle" x="263.36" y="-359.82" font-family="Times,serif" font-size="14.00" style="">[0-9]</text>
+</g>
+<!-- q3 -->
+<g id="node4" class="node" pointer-events="visible" data-name="q3">
+
+<ellipse fill="none" stroke="black" cx="500.72" cy="-427.69" rx="42.2" ry="42.2" style=""/>
+<text text-anchor="middle" x="500.72" y="-424.69" font-family="Courier,monospace" font-size="10.00" style="">q3 (Real)</text>
+</g>
+<!-- q2&#45;&gt;q3 -->
+<g id="edge4" class="edge" data-name="q2-&gt;q3">
+
+<path fill="none" stroke="black" d="M307.98,-313.3C336.49,-331.78 374.67,-356.13 409.02,-376.69 423.38,-385.29 439.22,-394.34 453.59,-402.39" style=""/>
+<polygon fill="black" stroke="black" points="451.51,-405.24 461.95,-407.05 454.92,-399.12 451.51,-405.24" style=""/>
+<text text-anchor="middle" x="362.65" y="-367.89" font-family="Times,serif" font-size="14.00" style="">'.'</text>
+</g>
+<!-- q_acc_int -->
+<g id="node5" class="node" pointer-events="visible" data-name="q_acc_int">
+
+<ellipse fill="none" stroke="black" cx="500.72" cy="-284.69" rx="79.4" ry="79.4" style=""/>
+<ellipse fill="none" stroke="black" cx="500.72" cy="-284.69" rx="83.41" ry="83.41" style=""/>
+<text text-anchor="middle" x="500.72" y="-287.69" font-family="Courier,monospace" font-size="10.00" style="">q_acc_int</text>
+<text text-anchor="middle" x="500.72" y="-275.69" font-family="Courier,monospace" font-size="10.00" style="">(Emitir INTEIRO)</text>
+</g>
+<!-- q2&#45;&gt;q_acc_int -->
+<g id="edge6" class="edge" data-name="q2-&gt;q_acc_int">
+
+<path fill="none" stroke="black" d="M316.59,-284.69C342.77,-284.69 375.29,-284.69 405.62,-284.69" style=""/>
+<polygon fill="black" stroke="black" points="405.61,-288.19 415.61,-284.69 405.61,-281.19 405.61,-288.19" style=""/>
+<text text-anchor="middle" x="362.65" y="-288.89" font-family="Times,serif" font-size="14.00" style="">';'</text>
+</g>
+<!-- q_err_id -->
+<g id="node7" class="node" pointer-events="visible" data-name="q_err_id">
+
+<ellipse fill="#ffe6e6" stroke="red" cx="500.72" cy="-91.69" rx="87.88" ry="87.88" style=""/>
+<ellipse fill="none" stroke="red" cx="500.72" cy="-91.69" rx="91.89" ry="91.89" style=""/>
+<text text-anchor="middle" x="500.72" y="-94.69" font-family="Courier,monospace" font-size="10.00" style="">ERRO</text>
+<text text-anchor="middle" x="500.72" y="-82.69" font-family="Courier,monospace" font-size="10.00" style="">INVALID_IDENTIFIER</text>
+</g>
+<!-- q2&#45;&gt;q_err_id -->
+<g id="edge5" class="edge" data-name="q2-&gt;q_err_id">
+
+<path fill="none" stroke="black" d="M304.82,-251.52C336.47,-225.56 381.45,-188.67 420.23,-156.87" style=""/>
+<polygon fill="black" stroke="black" points="422.23,-159.76 427.75,-150.71 417.79,-154.35 422.23,-159.76" style=""/>
+<text text-anchor="middle" x="362.65" y="-225.89" font-family="Times,serif" font-size="14.00" style="">[a-zA-Z_]</text>
+</g>
+<!-- q3&#45;&gt;q3 -->
+<g id="edge7" class="edge" data-name="q3-&gt;q3">
+
+<path fill="none" stroke="black" d="M475.06,-461.67C473.29,-475.81 481.84,-487.79 500.72,-487.79 514.28,-487.79 522.52,-481.6 525.42,-472.87" style=""/>
+<polygon fill="black" stroke="black" points="528.88,-473.44 526.25,-463.18 521.91,-472.85 528.88,-473.44" style=""/>
+<text text-anchor="middle" x="500.72" y="-491.99" font-family="Times,serif" font-size="14.00" style="">[0-9]</text>
+</g>
+<!-- q_acc_real -->
+<g id="node6" class="node" pointer-events="visible" data-name="q_acc_real">
+
+<ellipse fill="none" stroke="black" cx="759.87" cy="-508.69" rx="66.46" ry="66.46" style=""/>
+<ellipse fill="none" stroke="black" cx="759.87" cy="-508.69" rx="70.45" ry="70.45" style=""/>
+<text text-anchor="middle" x="759.87" y="-511.69" font-family="Courier,monospace" font-size="10.00" style="">q_acc_real</text>
+<text text-anchor="middle" x="759.87" y="-499.69" font-family="Courier,monospace" font-size="10.00" style="">(Emitir REAL)</text>
+</g>
+<!-- q3&#45;&gt;q_acc_real -->
+<g id="edge9" class="edge" data-name="q3-&gt;q_acc_real">
+
+<path fill="none" stroke="black" d="M541.33,-440.17C578.51,-451.88 635.14,-469.72 681.3,-484.26" style=""/>
+<polygon fill="black" stroke="black" points="680.15,-487.57 690.74,-487.23 682.25,-480.89 680.15,-487.57" style=""/>
+<text text-anchor="middle" x="638.78" y="-481.89" font-family="Times,serif" font-size="14.00" style="">';'</text>
+</g>
+<!-- q_err_num -->
+<g id="node8" class="node" pointer-events="visible" data-name="q_err_num">
+
+<ellipse fill="#ffe6e6" stroke="red" cx="759.87" cy="-345.69" rx="70.93" ry="70.93" style=""/>
+<ellipse fill="none" stroke="red" cx="759.87" cy="-345.69" rx="74.94" ry="74.94" style=""/>
+<text text-anchor="middle" x="759.87" y="-348.69" font-family="Courier,monospace" font-size="10.00" style="">ERRO</text>
+<text text-anchor="middle" x="759.87" y="-336.69" font-family="Courier,monospace" font-size="10.00" style="">INVALID_NUMBER</text>
+</g>
+<!-- q3&#45;&gt;q_err_num -->
+<g id="edge8" class="edge" data-name="q3-&gt;q_err_num">
+
+<path fill="none" stroke="black" d="M541.33,-415.06C577.46,-403.54 631.97,-386.16 677.39,-371.68" style=""/>
+<polygon fill="black" stroke="black" points="678.21,-375.09 686.68,-368.71 676.09,-368.42 678.21,-375.09" style=""/>
+<text text-anchor="middle" x="638.78" y="-394.89" font-family="Times,serif" font-size="14.00" style="">[a-zA-Z_]</text>
+</g>
+</g>
+</svg>

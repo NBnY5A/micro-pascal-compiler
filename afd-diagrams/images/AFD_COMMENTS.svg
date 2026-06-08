@@ -1,0 +1,75 @@
+<?xml version="1.0" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="634pt" height="451pt" viewBox="0.00 0.00 633.69 451.16">
+<g id="graph0" class="graph" transform="translate(4,447.1600036621094) scale(1)" data-name="AFD_Comentarios">
+
+<polygon fill="white" stroke="none" points="-4,4 -4,-447.16 629.69,-447.16 629.69,4 -4,4" style=""/>
+<text text-anchor="middle" x="312.84" y="-426.56" font-family="Times,serif" font-size="14.00" style="">"AFD para identificação de Comentários"</text>
+<!-- qi -->
+<g id="node1" class="node" pointer-events="visible" data-name="qi">
+
+<ellipse fill="black" stroke="black" cx="1.8" cy="-192.21" rx="1.8" ry="1.8" style=""/>
+</g>
+<!-- q0 -->
+<g id="node2" class="node" pointer-events="visible" data-name="q0">
+
+<ellipse fill="none" stroke="black" cx="93.52" cy="-192.21" rx="52.85" ry="52.85" style=""/>
+<text text-anchor="middle" x="93.52" y="-189.21" font-family="Courier,monospace" font-size="10.00" style="">q0 (Inicial)</text>
+</g>
+<!-- qi&#45;&gt;q0 -->
+<g id="edge1" class="edge" data-name="qi-&gt;q0">
+
+<path fill="none" stroke="black" d="M4.07,-192.21C7.43,-192.21 17.11,-192.21 28.9,-192.21" style=""/>
+<polygon fill="black" stroke="black" points="28.69,-195.71 38.69,-192.21 28.69,-188.71 28.69,-195.71" style=""/>
+</g>
+<!-- q7 -->
+<g id="node3" class="node" pointer-events="visible" data-name="q7">
+
+<ellipse fill="none" stroke="black" cx="261.57" cy="-192.21" rx="67.22" ry="67.22" style=""/>
+<text text-anchor="middle" x="261.57" y="-189.21" font-family="Courier,monospace" font-size="10.00" style="">q7 (Comentário)</text>
+</g>
+<!-- q0&#45;&gt;q7 -->
+<g id="edge2" class="edge" data-name="q0-&gt;q7">
+
+<path fill="none" stroke="black" d="M146.61,-192.21C158.11,-192.21 170.54,-192.21 182.82,-192.21" style=""/>
+<polygon fill="black" stroke="black" points="182.51,-195.71 192.51,-192.21 182.51,-188.71 182.51,-195.71" style=""/>
+<text text-anchor="middle" x="170.33" y="-196.41" font-family="Times,serif" font-size="14.00" style="">'{'</text>
+</g>
+<!-- q7&#45;&gt;q7 -->
+<g id="edge3" class="edge" data-name="q7-&gt;q7">
+
+<path fill="none" stroke="black" d="M245.47,-257.7C247.56,-269.4 252.93,-277.57 261.57,-277.57 267.25,-277.57 271.51,-274.05 274.36,-268.32" style=""/>
+<polygon fill="black" stroke="black" points="277.58,-269.73 277.23,-259.14 270.9,-267.65 277.58,-269.73" style=""/>
+<text text-anchor="middle" x="261.57" y="-281.77" font-family="Times,serif" font-size="14.00" style="">[^}]</text>
+</g>
+<!-- q_acc -->
+<g id="node4" class="node" pointer-events="visible" data-name="q_acc">
+
+<ellipse fill="none" stroke="black" cx="508.53" cy="-301.21" rx="113.3" ry="113.3" style=""/>
+<ellipse fill="none" stroke="black" cx="508.53" cy="-301.21" rx="117.31" ry="117.31" style=""/>
+<text text-anchor="middle" x="508.53" y="-304.21" font-family="Courier,monospace" font-size="10.00" style="">q_acc</text>
+<text text-anchor="middle" x="508.53" y="-292.21" font-family="Courier,monospace" font-size="10.00" style="">(Descartar, volta p/ q0)</text>
+</g>
+<!-- q7&#45;&gt;q_acc -->
+<g id="edge4" class="edge" data-name="q7-&gt;q_acc">
+
+<path fill="none" stroke="black" d="M323.44,-219.29C343.93,-228.41 367.53,-238.91 390.85,-249.29" style=""/>
+<polygon fill="black" stroke="black" points="389.23,-252.4 399.79,-253.26 392.08,-246 389.23,-252.4" style=""/>
+<text text-anchor="middle" x="360.16" y="-243.41" font-family="Times,serif" font-size="14.00" style="">'}'</text>
+</g>
+<!-- q_err_eof -->
+<g id="node5" class="node" pointer-events="visible" data-name="q_err_eof">
+
+<ellipse fill="#ffe6e6" stroke="red" cx="508.53" cy="-83.21" rx="79.4" ry="79.4" style=""/>
+<ellipse fill="none" stroke="red" cx="508.53" cy="-83.21" rx="83.41" ry="83.41" style=""/>
+<text text-anchor="middle" x="508.53" y="-86.21" font-family="Courier,monospace" font-size="10.00" style="">ERRO</text>
+<text text-anchor="middle" x="508.53" y="-74.21" font-family="Courier,monospace" font-size="10.00" style="">UNCLOSED_COMMENT</text>
+</g>
+<!-- q7&#45;&gt;q_err_eof -->
+<g id="edge5" class="edge" data-name="q7-&gt;q_err_eof">
+
+<path fill="none" stroke="black" d="M323.44,-165.12C353.1,-151.92 389.29,-135.82 421.7,-121.4" style=""/>
+<polygon fill="black" stroke="black" points="422.98,-124.66 430.69,-117.4 420.13,-118.27 422.98,-124.66" style=""/>
+<text text-anchor="middle" x="360.16" y="-157.41" font-family="Times,serif" font-size="14.00" style="">EOF</text>
+</g>
+</g>
+</svg>

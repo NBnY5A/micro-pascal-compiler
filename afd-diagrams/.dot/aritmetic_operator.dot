@@ -1,0 +1,33 @@
+digraph AFD_Relacionais {
+    rankdir=LR;
+    node [shape=circle, fontname="Courier", fontsize=10];
+    label="\"AFD para Operações Aritiméticas\"";
+    labelloc="t"
+
+    qi [shape=point]; 
+    
+    q0 [label="q0 (Inicial)"];
+    q4_lt [label="q4_lt (Apos '<')"];
+    q4_gt [label="q4_gt (Apos '>')"];
+    
+    q_acc_eq [label="q_acc_eq\n(Emitir '=')", shape=doublecircle];
+    q_acc_lt [label="q_acc_lt\n(Emitir '<')", shape=doublecircle];
+    q_acc_gt [label="q_acc_gt\n(Emitir '>')", shape=doublecircle];
+    
+    q_acc_le [label="q_acc_le\n(Emitir '<=')", shape=doublecircle];
+    q_acc_ge [label="q_acc_ge\n(Emitir '>=')", shape=doublecircle];
+    q_acc_ne [label="q_acc_ne\n(Emitir '<>')", shape=doublecircle];
+    
+    qi->q0
+    
+    q0 -> q_acc_eq [label="'='"];
+    
+    q0 -> q4_lt [label="'<'"];
+    q4_lt -> q_acc_le [label="'='"];
+    q4_lt -> q_acc_ne [label="'>'"];
+    q4_lt -> q_acc_lt [label="outro\n(Verifica próximo caractere)"];
+    
+    q0 -> q4_gt [label="'>'"];
+    q4_gt -> q_acc_ge [label="'='"];
+    q4_gt -> q_acc_gt [label="outro\n(Verifica próximo caractere)"];
+}

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./lexer.h"
+#include "file.h"
 
 typedef struct ASTNode
 {
@@ -43,3 +44,7 @@ ASTNode *parseBlock(HashTable *table, Entry **currentEntry);
 ASTNode *parseProgram(HashTable *table, Entry **currentEntry);
 
 ASTNode *parseTokens(HashTable *table);
+
+void exportASTToDot(ASTNode *root, const char *filename);
+
+static void exportToDotHelper(FILE *file, ASTNode *node, int parentId);

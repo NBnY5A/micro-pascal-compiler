@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "definitions/lexer.h"
 #include "definitions/file.h"
@@ -138,6 +140,24 @@ int main(int argc, char **argv)
     if (!lexicalError)
     {
         ASTNode *ast = parseTokens(tokenTable);
+
+        struct stat st = {0};
+
+        if (stat("./ast-graphic", &st) == -1)
+        {
+            mkdir("./ast-graphic", 0777);
+        }
+
+        const char *baseName = strrchr(inputName, '/');
+        baseName = baseName ? baseName + 1 : inputName;
+        const char *dotExt = strrchr(baseName, '.');
+        size_t stemLen = (dotExt != NULL) ? (size_t)(dotExt - baseName) : strlen(baseName);
+
+        char dotPath[512];
+        snprintf(dotPath, sizeof(dotPath), "./ast-graphic/%.*s.dot", (int) stemLen, baseName);
+
+        exportASTToDot(ast, dotPath);
+        
         freeNode(ast);
     }
     else

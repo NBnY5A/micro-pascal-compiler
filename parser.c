@@ -6,6 +6,8 @@
 #include "definitions/parser.h"
 #include "definitions/token.h"
 
+static int dot_node_id = 0;
+
 static char *copyString(const char *value)
 {
     if (value == NULL)
@@ -493,7 +495,6 @@ ASTNode *parseCompoundStatement(HashTable *table, Entry **currentEntry)
     entry = *currentEntry;
 
     ASTNode *stmtListNode = NULL;
-    ASTNode *lastStmtNode = NULL;
 
     while (entry != NULL && !lexemeEquals(entry, RESERVERD_WORD_END))
     {
@@ -505,10 +506,12 @@ ASTNode *parseCompoundStatement(HashTable *table, Entry **currentEntry)
         }
         else
         {
-            lastStmtNode->right = stmtNode;
+            ASTNode *seqNode = createNode(SYMBOL, ";");
+            seqNode->left = stmtListNode;
+            seqNode->right = stmtNode;
+            stmtListNode = seqNode;
         }
-
-        lastStmtNode = stmtNode;
+        
         entry = *currentEntry;
 
         if (entry == NULL)
@@ -767,4 +770,56 @@ ASTNode *parseTokens(HashTable *table)
 
     Entry *entry = table->buckets[0];
     return parseProgram(table, &entry);
+}
+
+void exportASTToDot(ASTNode *root, const char *filename)
+{
+    if (!root) return;
+
+    FILE *file = fopen(filename, "w");
+
+    if (!file)
+    {
+        fprintf(stderr, "Failed to create AST dot file at %s\n");
+        return;
+    }
+
+    fprintf(file, "digraph AST {\n");
+    fprintf(file, "    node [shape=box];\n");
+    dot_node_id = 0;
+    exportToDotHelper(file, root, -1);
+    fprintf(file, "}\n");
+    fclose(file);
+}
+
+static void exportToDotHelper(FILE *file, ASTNode *node, int parentId)
+{
+    if (!node) return;
+
+    int currentId = dot_node_id++;
+
+    char safeValue[256] = {0};
+
+    if (node->value)
+    {
+        int j = 0;
+        for (int i = 0; node->value[i] != '\0' && j < 254; i++) 
+        {
+            if (node->value[i] == '"' || node->value[i] == '\\')
+            {
+                safeValue[j++] = '\\';
+            }
+            safeValue[j++] = node->value[i];
+        }
+
+        fprintf(file,"    node%d [label=\"%s\"];\n", currentId, safeValue);
+
+        if (parentId != -1) 
+        {
+            fprintf(file, "    node%d -> node%d;\n", parentId, currentId);
+        }
+
+        exportToDotHelper(file, node->left, currentId);
+        exportToDotHelper(file, node->right, currentId);
+    }
 }
