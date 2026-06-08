@@ -511,7 +511,7 @@ ASTNode *parseCompoundStatement(HashTable *table, Entry **currentEntry)
             seqNode->right = stmtNode;
             stmtListNode = seqNode;
         }
-        
+
         entry = *currentEntry;
 
         if (entry == NULL)
@@ -594,7 +594,7 @@ ASTNode *parseDeclaration(HashTable *table, Entry **currentEntry)
         parserAbort(entry, "Expected declaration");
     }
 
-    ASTNode *declNode = createNode(entry->token->type, entry->token->lexeme);
+    ASTNode *declNode = createNode(SYMBOL, ":");
     declNode->left = parseIdentifierList(table, currentEntry);
 
     entry = *currentEntry;
@@ -671,7 +671,7 @@ ASTNode *parseVarDeclaration(HashTable *table, Entry **currentEntry)
             parserAbortFree(entry, "Expected \";\" after declaration", varDeclNode);
         }
 
-        *currentEntry = entry->next; // avança para próxima declaração ou begin
+        *currentEntry = entry->next;
         entry = *currentEntry;
     }
 
@@ -680,7 +680,7 @@ ASTNode *parseVarDeclaration(HashTable *table, Entry **currentEntry)
         parserAbortFree(entry, "Expected identifier after \"var\"", varDeclNode);
     }
 
-    varDeclNode->right = declList;
+    varDeclNode->left = declList;
     return varDeclNode;
 }
 
@@ -693,8 +693,13 @@ ASTNode *parseBlock(HashTable *table, Entry **currentEntry)
         parserAbort(entry, "Expected block");
     }
 
-    ASTNode *blockNode = createNode(entry->token->type, entry->token->lexeme);
-    blockNode->left = parseVarDeclaration(table, currentEntry);
+    ASTNode *blockNode = createNode(SYMBOL, "block");
+    
+    if (entry->token->type == RESERVED_WORD && strcmp(entry->token->lexeme, RESERVERD_WORD_VAR) == 0)
+    {
+        blockNode->left = parseVarDeclaration(table, currentEntry);
+    }
+
     blockNode->right = parseCompoundStatement(table, currentEntry);
 
     return blockNode;
@@ -739,8 +744,6 @@ ASTNode *parseProgram(HashTable *table, Entry **currentEntry)
     {
         parserAbortFree(entry, "Expected \";\"", programNode);
     }
-
-    idNode->right = createNode(entry->token->type, entry->token->lexeme);
 
     if (entry->next == NULL)
     {
