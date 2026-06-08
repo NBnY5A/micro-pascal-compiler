@@ -788,7 +788,7 @@ void exportASTToDot(ASTNode *root, const char *filename)
     }
 
     fprintf(file, "digraph AST {\n");
-    fprintf(file, "    node [shape=box];\n");
+    fprintf(file, "    node [shape=circle];\n");
     dot_node_id = 0;
     exportToDotHelper(file, root, -1);
     fprintf(file, "}\n");

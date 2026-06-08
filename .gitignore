@@ -2,3 +2,5 @@
 *.out
 lexical-tables/*
 !lexical-tables/.gitkeep
+ast-graphic/*
+!ast-graphic/.gitkeep

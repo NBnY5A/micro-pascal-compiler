@@ -162,7 +162,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        fprintf(stderr, "Lexical analysis failed. Parsing aborted.\n");
+        fprintf(stderr, "Lexical analysis failed. Could not be possible to generate the AST graphic. Parsing aborted.\n");
     }
 
     freeTable(tokenTable);
