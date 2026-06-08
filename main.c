@@ -146,6 +146,13 @@ int main(int argc, char **argv)
         if (stat("./ast-graphic", &st) == -1)
         {
             mkdir("./ast-graphic", 0777);
+            mkdir("./ast-graphic/dot", 0777);
+            mkdir("./ast-graphic/images", 0777);
+        }
+        else
+        {
+            if (stat("./ast-graphic/dot", &st) == -1) mkdir("./ast-graphic/dot", 0777);
+            if (stat("./ast-graphic/images", &st) == -1) mkdir("./ast-graphic/images", 0777);
         }
 
         const char *baseName = strrchr(inputName, '/');
@@ -154,10 +161,27 @@ int main(int argc, char **argv)
         size_t stemLen = (dotExt != NULL) ? (size_t)(dotExt - baseName) : strlen(baseName);
 
         char dotPath[512];
-        snprintf(dotPath, sizeof(dotPath), "./ast-graphic/%.*s.dot", (int) stemLen, baseName);
+        snprintf(dotPath, sizeof(dotPath), "./ast-graphic/dot/%.*s.dot", (int) stemLen, baseName);
 
         exportASTToDot(ast, dotPath);
+
+        char pngPath[512];
+        snprintf(pngPath, sizeof(pngPath), "./ast-graphic/images/%.*s.png", (int) stemLen, baseName);
+
+        char command[2048];
+        snprintf(command, sizeof(command), "dot -Tpng %s -o %s", dotPath, pngPath);
         
+        int result = system(command);
+
+        if (result != 0)
+        {
+            fprintf(stderr, "Failed to execute Graphviz dot command. Make sure Graphviz is installed.\n");
+        }
+        else
+        {
+            printf("AST graphic generated at: %s\n", pngPath);
+        }
+    
         freeNode(ast);
     }
     else

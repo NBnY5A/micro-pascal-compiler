@@ -783,7 +783,7 @@ void exportASTToDot(ASTNode *root, const char *filename)
 
     if (!file)
     {
-        fprintf(stderr, "Failed to create AST dot file at %s\n");
+        fprintf(stderr, "Failed to create AST dot file at %s\n", filename);
         return;
     }
 
