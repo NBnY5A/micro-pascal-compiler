@@ -6,6 +6,22 @@ Este repositório consiste na elaboração de um projeto acadêmico para a const
 
 A modularização separa responsabilidades entre leitura/escrita de arquivos, análise léxica, análise sintática e definições compartilhadas:
 ```bash
+├── afd-diagrams
+│   └── dot
+│       ├── aritmetic_operator.dot
+│       ├── ass_operator.dot
+│       ├── comments.dot
+│       ├── number.dot
+│       └── reserver-words.dot
+│   └── images
+│       ├── AFD_ARITMETIC_OPERATORS.svg
+│       ├── AFD_ASS_OPERATOR.svg
+│       ├── AFD_COMMENTS.svg
+│       ├── AFD_NUMBERS.svg
+│       └── AFD_RESERVED_WORDS.svg
+├── ast-graphic
+│   ├── dot
+│   └── images
 ├── definitions
 │   ├── file.h
 │   ├── lexer.h
@@ -109,7 +125,10 @@ typedef struct ASTNode {
 ```C
 int main(int argc, char **argv)
 ```
-Executa o pipeline completo do compilador: valida CLI, cria caminhos de saída, abre arquivos, inicializa tabelas, executa o lexer em loop, escreve `.lex`/`.ts`, chama parser se não houver erro léxico e libera recursos.
+Executa o pipeline completo do compilador: valida CLI, cria caminhos de saída, abre arquivos, inicializa tabelas, executa o lexer em loop, escreve `.lex`/`.ts`/`.err`, chama parser se não houver erro léxico e libera recursos.
+Além disso, gera a árvore sintática do código fonte, caso ele não possua erros, bem como gera a imagem automaticamente. 
+
+**Obs**: Para a imagem da árvore sintática ser gerada corretamente, é necessário ter o suporte para arquivos `.dot` instalado na sua máquina, caso contrário, será gerado apenas o arquivo `.dot`.
 
 ---
 
@@ -308,6 +327,16 @@ Processa estrutura completa `program ... ; ... end .`.
 ASTNode *parseTokens(HashTable *table)
 ```
 Ponto de entrada do parser para a tabela de tokens.
+
+```C
+void exportASTToDot(ASTNode *root, const char *filename);
+```
+Processa a árvore sintática e cria o arquivo `.dot`
+
+```C
+static void exportToDotHelper(FILE *file, ASTNode *node, int parentId);
+```
+Percorre os nós da árvore sintática ao mesmo tempo em que adiciona o seu contéudo ao arquivo `.dot` previamente criado
 
 ## 4. Como Compilar e Rodar os testes
 
